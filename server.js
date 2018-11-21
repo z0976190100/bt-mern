@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const keys = require("./config/keys");
 const bodyParser = require("body-parser");
+const passport = require("passport");
 
 const users = require("./routes/api/users");
 const profiles = require("./routes/api/profiles");
@@ -20,7 +21,11 @@ mongoose
 
 app.use(morgan("dev"));
 
-app.get("/", (req, res) => res.send("hello hey"));
+// passport
+app.use(passport.initialize());
+
+// passport config
+require("./config/passport")(passport);
 
 app.use("/api/users", users);
 app.use("/api/profiles", profiles);

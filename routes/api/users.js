@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
+const passport = require("passport");
 
 //post helper functions
 const postHelpers = {
@@ -68,7 +69,7 @@ const postHelpers = {
                     .then(isMatch => {
                         if (isMatch) {
                             // user matches
-                            const {id, name, avatar, date } = user;
+                            const {id, name, avatar, date} = user;
                             const payload = {
                                 id,
                                 name,
@@ -85,10 +86,9 @@ const postHelpers = {
                                         {
                                             msg: "Log in is SUCCESSFULL.",
                                             success: true,
-                                            token: "Bearer " + token,
-                                            ...payload
+                                            token: "Bearer " + token
                                         }
-                                        );
+                                    );
                                 });
 
                         } else {
@@ -96,8 +96,29 @@ const postHelpers = {
                         }
                     });
             })
+    },
+};
+
+const getHelpers = {
+    currentUser: (req, res) => {
+        const {id, name, email} = req.user;
+        res.json(
+            {
+                id,
+                name,
+                email
+            });
     }
 };
+
+// @route GET api/users/current
+// @desc returns current logged user
+// @access Private
+router.get(
+    "/current",
+    passport.authenticate("jwt", {session: false}),
+    (req, res) => getHelpers.currentUser(req, res));
+
 
 // @route POST api/users/
 // @desc saves new user to DB
