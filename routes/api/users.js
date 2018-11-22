@@ -7,15 +7,25 @@ const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require("passport");
 
+// load custom validator
+// KUNG-FUSION: should i implement validation based on model schema?
+const validateRegistrationData = require("../../validation/registration");
+
 //post helper functions
 const postHelpers = {
     saveUser: (req, res) => {
+        //validation of received data
+        const {errors, isValid} = validateRegistrationData(req.body);
 
+        if (!isValid) {
+            return res.status(400).json(errors);
+        }
         //check if similar User already exists
         User.findOne({email: req.body.email})
             .then(user => {
                 if (user) {
-                    return res.status(400).json({email: "User already exists"});
+                    errors.email = "User with this email already exists";
+                    return res.status(400).json(errors);
                 } else {
                     // create avatar
                     const avatar = gravatar.url(req.body.email,
