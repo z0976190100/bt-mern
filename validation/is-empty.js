@@ -1,4 +1,5 @@
 module.exports = function isEmpty(value, param) {
+
     return !(
         value === undefined ||
             value === null ||

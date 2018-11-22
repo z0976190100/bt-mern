@@ -16,19 +16,24 @@ const postHelpers = {
     saveUser: (req, res) => {
         //validation of received data
         const {errors, isValid} = validateRegistrationData(req.body);
-
         if (!isValid) {
             return res.status(400).json(errors);
         }
+
+        const {name, email, password} = req.body;
         //check if similar User already exists
-        User.findOne({email: req.body.email})
+        User.findOne({email})
             .then(user => {
                 if (user) {
-                    errors.email = "User with this email already exists";
+                    // TODO: throw ERROR in such cases
+                    errors.push({
+                        parameter: "email",
+                        "exists": "User with this email already exists."
+                    });
                     return res.status(400).json(errors);
                 } else {
                     // create avatar
-                    const avatar = gravatar.url(req.body.email,
+                    const avatar = gravatar.url(email,
                         {
                             s: "200", //size
                             r: "pq", //rating
@@ -38,9 +43,9 @@ const postHelpers = {
                     // create new User and save it to DB
                     const newUser = new User(
                         {
-                            name: req.body.name,
-                            email: req.body.email,
-                            password: req.body.password,
+                            name,
+                            email,
+                            password,
                             avatar
                         }
                     );
@@ -51,17 +56,14 @@ const postHelpers = {
                             newUser.password = hash;
                             newUser.save()
                                 .then(user => {
-                                    //LOGGER
-                                    console.log(
-                                        `\n < users.js:34 > IN postCallback for ('/api/users') save newUser = \n
-                        ${newUser}`
-                                    );
-                                    // END LOGGER
                                     res.json(user);
                                 })
-                                .catch(err => console.log(
-                                    `\n < users.js:47 > IN postCallback for ('/api/users') while saving newUser we've got an error= \n
-                        ${err}`));
+                                .catch(err => {
+                                    console.log(
+                                        `\n < users.js:47 > ERROR: IN postCallback for ('/api/users') while saving newUser we've got \n
+                        ${err}`);
+                                    return res.status(400).json(err);
+                                });
                         });
                     });
                 }
