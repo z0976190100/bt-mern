@@ -3,6 +3,7 @@ const router = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
+const Profile = require("../../models/Profile");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require("passport");
@@ -120,6 +121,29 @@ const getHelpers = {
                 name,
                 email
             });
+    }
+};
+
+const deleteHelpers = {
+    deleteUser: (req, res) => {
+        Profile.findOneAndRemove({_user: req.user.id})
+            .then(() => {
+                    User.findOneAndRemove({id: req.user.id})
+                        .then(() => res.json({success: true}))
+                        .catch(err => {
+                            console.log(
+                                `\n < users.js:133 > ERROR: IN deleteUser. While deleting User we've got  \n
+                        ${err}`);
+                            return res.status(400).json(err);
+                        });
+                })
+            .catch(err => {
+                console.log(
+                    `\n < users.js:138 > ERROR: IN deleteProfile. While deleting Profile we've got \n
+                        ${err}`);
+                return res.status(400).json(err);
+            });
+
     }
 };
 
