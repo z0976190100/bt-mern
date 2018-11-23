@@ -13,7 +13,7 @@ const validateRegistrationData = require("../../validation/registration");
 
 //post helper functions
 const postHelpers = {
-    saveUser: (req, res) => {
+    saveProfile: (req, res) => {
         //validation of received data
         const {errors, isValid} = validateRegistrationData(req.body);
         if (!isValid) {
@@ -60,7 +60,7 @@ const postHelpers = {
                                 })
                                 .catch(err => {
                                     console.log(
-                                        `\n < users.js:47 > ERROR: IN postCallback for ('/api/users') while saving newUser we've got \n
+                                        `\n < users.js:47 > ERROR: IN saveUser. While saving newUser we've got \n
                         ${err}`);
                                     return res.status(400).json(err);
                                 });
@@ -108,7 +108,7 @@ const postHelpers = {
                         }
                     });
             })
-    },
+    }
 };
 
 const getHelpers = {
