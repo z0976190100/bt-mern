@@ -161,6 +161,14 @@ router.get(
 // @access Public
 router.post("/", (req, res) => postHelpers.saveUser(req, res));
 
+// @route DELETE api/users/
+// @desc removes user and profile
+// @access Private
+router.post(
+    "/",
+    passport.authenticate("jwt", {session: false}),
+    (req, res) => deleteHelpers.deleteUser(req, res));
+
 // @route POST api/users/login
 // @desc saves new user to DB
 // @access Public
