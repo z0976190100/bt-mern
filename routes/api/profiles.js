@@ -72,7 +72,7 @@ const postHelpers = {
                     });
                     return res.status(400).json(errors);
                 } else {
-                    const {handle, employment } = req.body;
+                    const {handle, employment} = req.body;
                     // create new Profile and save it to DB
                     const newProfile = new Profile(
                         {
@@ -127,6 +127,22 @@ const deleteHelpers = {
                     .then(profile =>
                         res.json(profile));
 
+            })
+            .catch(err => {
+                console.log(
+                    `\n < profiles.js:130 > ERROR: IN deleteContact. While deleting we've got \n
+                        ${err}`);
+                return res.status(400).json(err);
+            });
+    },
+    deleteProfile: (req, res) => {
+        Profile.findOneAndRemove({_user: req.user.id})
+            .then(() => res.json({success: true}))
+            .catch(err => {
+                console.log(
+                    `\n < profiles.js:138 > ERROR: IN deleteProfile. While deleting Profile we've got \n
+                        ${err}`);
+                return res.status(400).json(err);
             });
     }
 };
@@ -177,6 +193,14 @@ router.delete(
     "/contacts/:cont_id",
     passport.authenticate("jwt", {session: false}),
     (req, res) => deleteHelpers.deleteContact(req, res));
+
+// @route DELETE api/profiles/
+// @desc removes exact Profile for exact user
+// @access Private
+router.delete(
+    "/",
+    passport.authenticate("jwt", {session: false}),
+    (req, res) => deleteHelpers.deleteProfile(req, res));
 
 // @route GET api/profiles/test
 // @desc tests route
